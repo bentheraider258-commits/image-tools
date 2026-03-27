@@ -3,200 +3,232 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ImageTools - Free Image Tools Online</title>
-
-<meta name="description" content="Resize, compress, convert and crop images online for free. Fast and easy image tools.">
+<title>ImageTools Elite</title>
 
 <style>
-body {font-family: Arial; margin:0; background:#f4f7fb;}
-header {background:#0d6efd; color:white; padding:15px; text-align:center;}
-nav {text-align:center; padding:10px; background:#fff;}
-nav button {margin:5px; padding:10px; border:none; background:#eee; cursor:pointer;}
+body {
+  margin:0;
+  font-family: 'Segoe UI', sans-serif;
+  background:#f5f7fb;
+}
 
-.container {max-width:900px; margin:auto; padding:20px;}
-.card {background:white; padding:20px; margin:20px 0; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.1);}
-button.action {background:#0d6efd; color:white;}
-canvas {max-width:100%; margin-top:10px;}
+header {
+  text-align:center;
+  padding:20px;
+  font-size:26px;
+  font-weight:bold;
+}
 
-.page {display:none;}
-.active {display:block;}
+.container {
+  max-width:850px;
+  margin:auto;
+  padding:20px;
+}
+
+.upload {
+  border:2px dashed #6366f1;
+  padding:40px;
+  border-radius:15px;
+  background:white;
+  text-align:center;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.upload:hover { background:#eef2ff; }
+
+.preview img {
+  max-width:100%;
+  margin-top:20px;
+  border-radius:10px;
+}
+
+.tabs {
+  margin-top:20px;
+  text-align:center;
+}
+
+.tabs button {
+  margin:5px;
+  padding:10px 15px;
+  border:none;
+  border-radius:6px;
+  background:#ddd;
+  cursor:pointer;
+}
+
+.tabs .active {
+  background:#6366f1;
+  color:white;
+}
+
+.tool-box {
+  display:none;
+  background:white;
+  padding:20px;
+  margin-top:15px;
+  border-radius:10px;
+}
+
+.tool-box.active { display:block; }
+
+input, select {
+  padding:8px;
+  margin:5px;
+}
+
+button.action {
+  background:#6366f1;
+  color:white;
+  border:none;
+  padding:10px;
+  border-radius:6px;
+  cursor:pointer;
+}
+
+canvas {
+  max-width:100%;
+  margin-top:20px;
+}
+
+.ad {
+  margin:20px 0;
+  padding:20px;
+  background:#eee;
+  text-align:center;
+}
 </style>
 </head>
 
 <body>
 
-<header>
-<h1>ImageTools</h1>
-<p>Resize, Compress, Convert & Crop Images Online Free</p>
-</header>
-
-<nav>
-<button onclick="showPage('home')">Home</button>
-<button onclick="showPage('about')">About</button>
-<button onclick="showPage('privacy')">Privacy</button>
-<button onclick="showPage('contact')">Contact</button>
-</nav>
+<header>ImageTools Elite</header>
 
 <div class="container">
 
-<!-- HOME -->
-<div id="home" class="page active">
-
-<div class="card">
-<h2>Resize Image</h2>
-<input type="file" id="resizeUpload"><br>
-<input type="number" id="width" placeholder="Width">
-<input type="number" id="height" placeholder="Height"><br>
-<button class="action" onclick="resizeImage()">Resize</button>
-<canvas id="resizeCanvas"></canvas>
-<a id="resizeDownload"></a>
+<div class="upload" onclick="fileInput.click()">
+  Drag & Drop Image or Click to Upload
+  <input type="file" id="fileInput" hidden>
 </div>
 
-<div class="card">
-<h2>Compress Image</h2>
-<input type="file" id="compressUpload"><br>
-<input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.7"><br>
-<button class="action" onclick="compressImage()">Compress</button>
-<canvas id="compressCanvas"></canvas>
-<a id="compressDownload"></a>
+<div class="preview">
+  <img id="previewImg">
 </div>
 
-<div class="card">
-<h2>Convert Image</h2>
-<input type="file" id="convertUpload"><br>
-<button class="action" onclick="convertImage('image/png')">To PNG</button>
-<button class="action" onclick="convertImage('image/jpeg')">To JPG</button>
-<canvas id="convertCanvas"></canvas>
-<a id="convertDownload"></a>
+<div class="tabs">
+  <button onclick="switchTab('resize')" class="active">Resize</button>
+  <button onclick="switchTab('compress')">Compress</button>
+  <button onclick="switchTab('convert')">Convert</button>
+  <button onclick="switchTab('crop')">Crop</button>
 </div>
 
-<div class="card">
-<h2>Crop Image</h2>
-<input type="file" id="cropUpload"><br>
-<input type="number" id="cropX" placeholder="X">
-<input type="number" id="cropY" placeholder="Y"><br>
-<input type="number" id="cropW" placeholder="Width">
-<input type="number" id="cropH" placeholder="Height"><br>
-<button class="action" onclick="cropImage()">Crop</button>
-<canvas id="cropCanvas"></canvas>
-<a id="cropDownload"></a>
+<!-- RESIZE -->
+<div id="resize" class="tool-box active">
+  Width <input id="width">
+  Height <input id="height"><br>
+
+  <h4>Presets</h4>
+  <button onclick="preset(1080,1080)">Instagram</button>
+  <button onclick="preset(1280,720)">YouTube</button>
+  <button onclick="preset(512,512)">Profile</button><br>
+
+  <button class="action" onclick="resize()">Apply</button>
 </div>
 
-<div class="card">
-<h3>Ad Space</h3>
-<p>(Place AdSense code here)</p>
+<!-- COMPRESS -->
+<div id="compress" class="tool-box">
+  Quality <input type="range" id="quality" min="0.1" max="1" step="0.1" value="0.7">
+  <button class="action" onclick="compress()">Apply</button>
 </div>
 
+<!-- CONVERT -->
+<div id="convert" class="tool-box">
+  <select id="format">
+    <option value="image/png">PNG</option>
+    <option value="image/jpeg">JPG</option>
+  </select>
+  <button class="action" onclick="convert()">Apply</button>
 </div>
 
-<!-- ABOUT -->
-<div id="about" class="page">
-<div class="card">
-<h2>About</h2>
-<p>This website provides free online image tools like resizing, compressing, converting and cropping images quickly and securely.</p>
-</div>
-</div>
-
-<!-- PRIVACY -->
-<div id="privacy" class="page">
-<div class="card">
-<h2>Privacy Policy</h2>
-<p>Your images are processed in your browser and are not uploaded to any server.</p>
-</div>
+<!-- CROP -->
+<div id="crop" class="tool-box">
+  X <input id="cropX">
+  Y <input id="cropY"><br>
+  Width <input id="cropW">
+  Height <input id="cropH"><br>
+  <button class="action" onclick="crop()">Apply</button>
 </div>
 
-<!-- CONTACT -->
-<div id="contact" class="page">
-<div class="card">
-<h2>Contact</h2>
-<p>Email: your@email.com</p>
-</div>
-</div>
+<div class="ad">Ad Space (Top)</div>
+
+<canvas id="canvas"></canvas>
+<a id="download"></a>
+
+<div class="ad">Ad Space (Bottom)</div>
 
 </div>
 
 <script>
-function showPage(id){
-document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-document.getElementById(id).classList.add('active');
+let img = new Image();
+fileInput.onchange = e=>{
+  img.src = URL.createObjectURL(e.target.files[0]);
+  previewImg.src = img.src;
+};
+
+function switchTab(id){
+  document.querySelectorAll('.tool-box').forEach(t=>t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  event.target.classList.add('active');
 }
 
-// Resize
-function resizeImage(){
-let file=document.getElementById('resizeUpload').files[0];
-let img=new Image();
-img.src=URL.createObjectURL(file);
-img.onload=function(){
-let canvas=document.getElementById('resizeCanvas');
-let ctx=canvas.getContext('2d');
-let w=document.getElementById('width').value||img.width;
-let h=document.getElementById('height').value||img.height;
-canvas.width=w; canvas.height=h;
-ctx.drawImage(img,0,0,w,h);
-let link=document.getElementById('resizeDownload');
-link.href=canvas.toDataURL();
-link.download="resized.png";
-link.innerText="Download";
-}
+function preset(w,h){
+  width.value=w;
+  height.value=h;
 }
 
-// Compress
-function compressImage(){
-let file=document.getElementById('compressUpload').files[0];
-let quality=document.getElementById('quality').value;
-let img=new Image();
-img.src=URL.createObjectURL(file);
-img.onload=function(){
-let canvas=document.getElementById('compressCanvas');
-let ctx=canvas.getContext('2d');
-canvas.width=img.width;
-canvas.height=img.height;
-ctx.drawImage(img,0,0);
-let link=document.getElementById('compressDownload');
-link.href=canvas.toDataURL('image/jpeg',quality);
-link.download="compressed.jpg";
-link.innerText="Download";
-}
+function resize(){
+  img.onload=()=>{
+    canvas.width=width.value||img.width;
+    canvas.height=height.value||img.height;
+    canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+    download();
+  }
 }
 
-// Convert
-function convertImage(format){
-let file=document.getElementById('convertUpload').files[0];
-let img=new Image();
-img.src=URL.createObjectURL(file);
-img.onload=function(){
-let canvas=document.getElementById('convertCanvas');
-let ctx=canvas.getContext('2d');
-canvas.width=img.width;
-canvas.height=img.height;
-ctx.drawImage(img,0,0);
-let link=document.getElementById('convertDownload');
-link.href=canvas.toDataURL(format);
-link.download="converted";
-link.innerText="Download";
-}
+function compress(){
+  img.onload=()=>{
+    canvas.width=img.width;
+    canvas.height=img.height;
+    canvas.getContext('2d').drawImage(img,0,0);
+    download(canvas.toDataURL('image/jpeg',quality.value));
+  }
 }
 
-// Crop
-function cropImage(){
-let file=document.getElementById('cropUpload').files[0];
-let img=new Image();
-img.src=URL.createObjectURL(file);
-img.onload=function(){
-let canvas=document.getElementById('cropCanvas');
-let ctx=canvas.getContext('2d');
-let x=document.getElementById('cropX').value||0;
-let y=document.getElementById('cropY').value||0;
-let w=document.getElementById('cropW').value;
-let h=document.getElementById('cropH').value;
-canvas.width=w;
-canvas.height=h;
-ctx.drawImage(img,x,y,w,h,0,0,w,h);
-let link=document.getElementById('cropDownload');
-link.href=canvas.toDataURL();
-link.download="cropped.png";
-link.innerText="Download";
+function convert(){
+  img.onload=()=>{
+    canvas.width=img.width;
+    canvas.height=img.height;
+    canvas.getContext('2d').drawImage(img,0,0);
+    download(canvas.toDataURL(format.value));
+  }
 }
+
+function crop(){
+  img.onload=()=>{
+    canvas.width=cropW.value;
+    canvas.height=cropH.value;
+    canvas.getContext('2d').drawImage(img,cropX.value,cropY.value,cropW.value,cropH.value,0,0,cropW.value,cropH.value);
+    download();
+  }
+}
+
+function download(url){
+  let link=document.getElementById("download");
+  link.href=url||canvas.toDataURL();
+  link.download="image.png";
+  link.innerText="Download Image";
 }
 </script>
 

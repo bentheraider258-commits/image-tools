@@ -2,130 +2,200 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Resizer Pro</title>
+<title>Image Converter</title>
 
 <style>
 body {
-  font-family: Arial;
-  background:#f5f7fb;
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#f3f4f6;
+}
+
+/* TOP BAR */
+.topbar {
+  background:#1f2937;
+  color:white;
+  padding:10px;
+  text-align:center;
+  font-size:14px;
+}
+
+/* CENTER */
+.wrapper {
+  display:flex;
+  justify-content:center;
+  margin-top:60px;
+}
+
+/* CARD */
+.card {
+  background:white;
+  width:360px;
+  padding:20px;
+  border-radius:8px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
   text-align:center;
 }
 
-.container {
-  max-width:600px;
-  margin:auto;
-  padding:20px;
-}
-
-.upload {
-  border:2px dashed #4f46e5;
-  padding:30px;
-  border-radius:10px;
-  background:white;
+/* UPLOAD */
+.upload-btn {
+  background:#2563eb;
+  color:white;
+  padding:10px 15px;
+  border:none;
+  border-radius:5px;
   cursor:pointer;
 }
 
-input {
-  padding:8px;
+.small-text {
+  font-size:12px;
+  color:#555;
+  margin-top:5px;
+}
+
+/* SELECT */
+select {
+  padding:6px;
+  margin:10px;
+}
+
+/* OPTIONS */
+.options {
+  font-size:13px;
+  text-align:left;
+  margin-top:10px;
+}
+
+/* INPUTS */
+input[type="number"] {
+  width:70px;
+  padding:5px;
   margin:5px;
-  width:100px;
 }
 
-button {
-  padding:10px;
-  background:#4f46e5;
+/* BUTTON */
+.convert-btn {
+  background:#16a34a;
   color:white;
+  padding:10px;
   border:none;
-  border-radius:6px;
+  border-radius:5px;
+  margin-top:15px;
+  width:100%;
+  cursor:pointer;
 }
 
+/* CANVAS */
 canvas {
-  max-width:100%;
   margin-top:15px;
+  max-width:100%;
 }
+
 </style>
 </head>
 
 <body>
 
-<div class="container">
-
-<h2>Resize Image</h2>
-
-<div class="upload" onclick="fileInput.click()">
-  Upload Image
-  <input type="file" id="fileInput" hidden>
+<div class="topbar">
+ImageTools Converter
 </div>
+
+<div class="wrapper">
+<div class="card">
+
+<h3>Image Converter Online</h3>
+
+<button class="upload-btn" onclick="fileInput.click()">Select Image</button>
+<input type="file" id="fileInput" hidden>
+
+<div class="small-text">
+Max file size 5MB. Supports JPG, PNG
+</div>
+
+<select id="format">
+  <option value="image/png">PNG</option>
+  <option value="image/jpeg">JPG</option>
+</select>
+
+<div class="options">
+
+<label>
+<input type="radio" name="mode" value="none" checked>
+No change
+</label><br>
+
+<label>
+<input type="radio" name="mode" value="percent">
+Change by %
+</label>
+<input type="number" id="percent" placeholder="%" style="display:none">
 
 <br>
 
-Width: <input id="width">
-Height: <input id="height"><br>
+<label>
+<input type="radio" name="mode" value="pixels">
+Change by pixels
+</label>
 
-Percentage: <input id="percent" value="100"> %
+<br>
 
-<br><br>
+<input type="number" id="width" placeholder="Width" style="display:none">
+<input type="number" id="height" placeholder="Height" style="display:none">
 
-<button onclick="applyResize()">Apply</button>
+</div>
+
+<button class="convert-btn" onclick="process()">Convert Image</button>
 
 <canvas id="canvas"></canvas>
 <a id="download"></a>
 
 </div>
+</div>
 
 <script>
 let img = new Image();
-let originalW, originalH;
 
 fileInput.onchange = e=>{
   img.src = URL.createObjectURL(e.target.files[0]);
+};
 
-  img.onload = ()=>{
-    originalW = img.width;
-    originalH = img.height;
-
-    width.value = originalW;
-    height.value = originalH;
-    percent.value = 100;
-
-    drawPreview(originalW, originalH);
+// Toggle inputs
+document.querySelectorAll('input[name="mode"]').forEach(r=>{
+  r.onchange = ()=>{
+    percent.style.display = r.value=="percent" ? "inline" : "none";
+    width.style.display = height.style.display =
+      r.value=="pixels" ? "inline" : "none";
   }
-};
+});
 
-// Sync width/height → percent
-width.oninput = ()=>{
-  percent.value = Math.round((width.value / originalW)*100);
-  height.value = Math.round((width.value / originalW)*originalH);
-  drawPreview(width.value, height.value);
-};
+function process(){
+  img.onload = ()=>{
+    let w = img.width;
+    let h = img.height;
 
-height.oninput = ()=>{
-  percent.value = Math.round((height.value / originalH)*100);
-  width.value = Math.round((height.value / originalH)*originalW);
-  drawPreview(width.value, height.value);
-};
+    let mode = document.querySelector('input[name="mode"]:checked').value;
 
-// Sync percent → width/height
-percent.oninput = ()=>{
-  let scale = percent.value / 100;
-  width.value = Math.round(originalW * scale);
-  height.value = Math.round(originalH * scale);
-  drawPreview(width.value, height.value);
-};
+    if(mode=="percent"){
+      let p = percent.value/100 || 1;
+      w = w*p;
+      h = h*p;
+    }
 
-// Draw preview
-function drawPreview(w,h){
-  canvas.width = w;
-  canvas.height = h;
-  canvas.getContext('2d').drawImage(img,0,0,w,h);
-}
+    if(mode=="pixels"){
+      w = width.value || w;
+      h = height.value || h;
+    }
 
-// Apply final
-function applyResize(){
-  let link = document.getElementById("download");
-  link.href = canvas.toDataURL();
-  link.download = "resized.png";
-  link.innerText = "Download Image";
+    canvas.width = w;
+    canvas.height = h;
+
+    canvas.getContext('2d').drawImage(img,0,0,w,h);
+
+    let link = document.getElementById("download");
+    link.href = canvas.toDataURL(format.value);
+    link.download = "image";
+    link.innerText = "Download Image";
+  }
 }
 </script>
 

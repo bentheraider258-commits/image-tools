@@ -1,29 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Converter Online</title>
+
+<title>Image Converter Online Free | Convert Images Instantly</title>
+<meta name="description" content="Convert images online free. Change JPG, PNG, WEBP formats instantly with preview.">
 
 <style>
 body {
   margin:0;
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#f3f4f6;
 }
 
+/* HEADER */
 .header {
   background:#1f2937;
   color:white;
   text-align:center;
   padding:12px;
+  font-size:16px;
 }
 
+/* CENTER */
 .wrapper {
   display:flex;
   justify-content:center;
-  margin-top:50px;
+  margin-top:40px;
 }
 
+/* CARD */
 .card {
   background:white;
   width:360px;
@@ -33,6 +40,7 @@ body {
   box-shadow:0 4px 12px rgba(0,0,0,0.1);
 }
 
+/* BUTTONS */
 button {
   padding:10px;
   background:#2563eb;
@@ -48,27 +56,45 @@ button {
   margin-top:15px;
 }
 
+/* PREVIEW */
 .preview img {
   max-width:100%;
   margin-top:10px;
   border-radius:6px;
 }
 
+/* SELECT */
 select {
   padding:6px;
   margin-top:10px;
 }
+
+/* ADS */
+.ad {
+  text-align:center;
+  padding:10px;
+  margin:20px auto;
+  width:360px;
+  background:#e5e7eb;
+}
+
+/* FOOTER */
+.footer {
+  text-align:center;
+  margin-top:30px;
+  padding:15px;
+  font-size:13px;
+  color:#555;
+}
 </style>
 </head>
-<div style="text-align:center; margin-top:30px; padding:15px; font-size:13px; color:#555;">
-  <a href="about.html">About</a> |
-  <a href="privacy.html">Privacy</a>
-  <br><br>
-  © 2026 ImageTools
-</div>
+
 <body>
 
-<div class="header">ImageTools Converter</div>
+<div class="header">ImageTools - Free Image Converter</div>
+
+<!-- TOP AD -->
+<div class="ad">Ad Space (Top)</div>
 
 <div class="wrapper">
 <div class="card">
@@ -78,16 +104,16 @@ select {
 <button onclick="fileInput.click()">Select Image</button>
 <input type="file" id="fileInput" hidden accept="image/*">
 
+<p style="font-size:12px;color:#555;">Max file size 5MB</p>
+
 <div class="preview">
   <img id="previewImg">
 </div>
 
-<!-- MULTIPLE FORMAT OPTIONS -->
 <select id="format">
   <option value="image/png">PNG</option>
   <option value="image/jpeg">JPG</option>
   <option value="image/webp">WEBP</option>
-  <option value="image/bmp">BMP</option>
 </select>
 
 <button class="convert" onclick="convert()">Convert & Download</button>
@@ -97,18 +123,38 @@ select {
 </div>
 </div>
 
+<!-- BOTTOM AD -->
+<div class="ad">Ad Space (Bottom)</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <a href="about.html">About</a> |
+  <a href="privacy.html">Privacy</a>
+  <br><br>
+  © 2026 ImageTools
+</div>
+
 <script>
 let img = new Image();
 let loaded = false;
 
+const fileInput = document.getElementById("fileInput");
+const previewImg = document.getElementById("previewImg");
+
 fileInput.onchange = e=>{
   let file = e.target.files[0];
-  if(file.size > 5 * 1024 * 1024){
-  alert("Max file size is 5MB");
-  return;
-}
+
+  if(!file) return;
+
+  // file type check
   if(!file.type.startsWith("image/")){
-    alert("Only images allowed");
+    alert("Only image files allowed");
+    return;
+  }
+
+  // size check (5MB)
+  if(file.size > 5 * 1024 * 1024){
+    alert("Max file size is 5MB");
     return;
   }
 
@@ -127,17 +173,23 @@ function convert(){
   canvas.width = img.width;
   canvas.height = img.height;
 
-  // ✅ FIX: fill white background first
+  // fix background (important for JPG)
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   ctx.drawImage(img,0,0);
 
+  let format = document.getElementById("format").value;
+
+  // warning for jpg
+  if(format === "image/jpeg"){
+    alert("JPG does not support transparency. Background will be white.");
+  }
+
   let link = document.createElement("a");
-  link.href = canvas.toDataURL(format.value);
+  link.href = canvas.toDataURL(format);
   link.download = "converted-image";
   link.click();
-}
 }
 </script>
 

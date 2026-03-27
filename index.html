@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Image Converter</title>
+
+<title>Image Converter Online Free | Resize & Convert Images</title>
+<meta name="description" content="Convert, resize and download images online for free. Fast, simple and secure image tool.">
 
 <style>
 body {
@@ -11,94 +14,93 @@ body {
   background:#f3f4f6;
 }
 
-/* TOP BAR */
-.topbar {
+/* HEADER */
+.header {
   background:#1f2937;
   color:white;
-  padding:10px;
+  padding:12px;
   text-align:center;
-  font-size:14px;
+  font-size:16px;
 }
 
-/* CENTER */
+/* MAIN */
 .wrapper {
   display:flex;
   justify-content:center;
-  margin-top:60px;
+  margin-top:40px;
 }
 
-/* CARD */
 .card {
   background:white;
   width:360px;
   padding:20px;
-  border-radius:8px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+  border-radius:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.1);
   text-align:center;
 }
 
-/* UPLOAD */
+/* BUTTON */
 .upload-btn {
   background:#2563eb;
   color:white;
   padding:10px 15px;
   border:none;
-  border-radius:5px;
+  border-radius:6px;
   cursor:pointer;
 }
 
-.small-text {
-  font-size:12px;
-  color:#555;
-  margin-top:5px;
-}
-
-/* SELECT */
-select {
-  padding:6px;
-  margin:10px;
-}
-
-/* OPTIONS */
-.options {
-  font-size:13px;
-  text-align:left;
-  margin-top:10px;
-}
-
-/* INPUTS */
-input[type="number"] {
-  width:70px;
-  padding:5px;
-  margin:5px;
-}
-
-/* BUTTON */
 .convert-btn {
   background:#16a34a;
   color:white;
   padding:10px;
   border:none;
-  border-radius:5px;
+  border-radius:6px;
   margin-top:15px;
   width:100%;
   cursor:pointer;
 }
 
-/* CANVAS */
-canvas {
-  margin-top:15px;
-  max-width:100%;
+/* INPUTS */
+select, input {
+  margin:6px;
+  padding:6px;
 }
 
+.options {
+  text-align:left;
+  font-size:13px;
+  margin-top:10px;
+}
+
+/* PREVIEW IMAGE */
+.preview {
+  margin-top:15px;
+}
+
+.preview img {
+  max-width:100%;
+  border-radius:6px;
+}
+
+/* AD */
+.ad {
+  margin:20px auto;
+  text-align:center;
+  padding:10px;
+  background:#e5e7eb;
+  width:360px;
+}
 </style>
 </head>
 
 <body>
 
-<div class="topbar">
-ImageTools Converter
+<div class="header">
+ImageTools - Free Image Converter
 </div>
+
+<!-- TOP AD -->
+<div class="ad">Ad Space (Top)</div>
 
 <div class="wrapper">
 <div class="card">
@@ -108,8 +110,11 @@ ImageTools Converter
 <button class="upload-btn" onclick="fileInput.click()">Select Image</button>
 <input type="file" id="fileInput" hidden>
 
-<div class="small-text">
-Max file size 5MB. Supports JPG, PNG
+<p style="font-size:12px;color:#555;">Max file size 5MB (JPG, PNG)</p>
+
+<!-- PREVIEW -->
+<div class="preview">
+<img id="previewImg">
 </div>
 
 <select id="format">
@@ -119,47 +124,41 @@ Max file size 5MB. Supports JPG, PNG
 
 <div class="options">
 
-<label>
-<input type="radio" name="mode" value="none" checked>
-No change
-</label><br>
+<label><input type="radio" name="mode" value="none" checked> No change</label><br>
 
-<label>
-<input type="radio" name="mode" value="percent">
-Change by %
-</label>
-<input type="number" id="percent" placeholder="%" style="display:none">
+<label><input type="radio" name="mode" value="percent"> Resize by %</label>
+<input type="number" id="percent" placeholder="%" style="display:none"><br>
 
-<br>
-
-<label>
-<input type="radio" name="mode" value="pixels">
-Change by pixels
-</label>
-
-<br>
+<label><input type="radio" name="mode" value="pixels"> Resize by pixels</label><br>
 
 <input type="number" id="width" placeholder="Width" style="display:none">
 <input type="number" id="height" placeholder="Height" style="display:none">
 
 </div>
 
-<button class="convert-btn" onclick="process()">Convert Image</button>
+<button class="convert-btn" onclick="process()">Convert & Download</button>
 
-<canvas id="canvas"></canvas>
-<a id="download"></a>
+<canvas id="canvas" style="display:none;"></canvas>
 
 </div>
 </div>
+
+<!-- BOTTOM AD -->
+<div class="ad">Ad Space (Bottom)</div>
 
 <script>
 let img = new Image();
+let fileLoaded = false;
 
 fileInput.onchange = e=>{
-  img.src = URL.createObjectURL(e.target.files[0]);
+  let file = e.target.files[0];
+  img.src = URL.createObjectURL(file);
+  previewImg.src = img.src;
+
+  img.onload = ()=> fileLoaded = true;
 };
 
-// Toggle inputs
+// toggle inputs
 document.querySelectorAll('input[name="mode"]').forEach(r=>{
   r.onchange = ()=>{
     percent.style.display = r.value=="percent" ? "inline" : "none";
@@ -169,33 +168,37 @@ document.querySelectorAll('input[name="mode"]').forEach(r=>{
 });
 
 function process(){
-  img.onload = ()=>{
-    let w = img.width;
-    let h = img.height;
+  if(!fileLoaded) return alert("Upload image first");
 
-    let mode = document.querySelector('input[name="mode"]:checked').value;
+  let w = img.width;
+  let h = img.height;
 
-    if(mode=="percent"){
-      let p = percent.value/100 || 1;
-      w = w*p;
-      h = h*p;
-    }
+  let mode = document.querySelector('input[name="mode"]:checked').value;
 
-    if(mode=="pixels"){
-      w = width.value || w;
-      h = height.value || h;
-    }
-
-    canvas.width = w;
-    canvas.height = h;
-
-    canvas.getContext('2d').drawImage(img,0,0,w,h);
-
-    let link = document.getElementById("download");
-    link.href = canvas.toDataURL(format.value);
-    link.download = "image";
-    link.innerText = "Download Image";
+  if(mode=="percent"){
+    let p = percent.value/100 || 1;
+    w = w*p;
+    h = h*p;
   }
+
+  if(mode=="pixels"){
+    w = width.value || w;
+    h = height.value || h;
+  }
+
+  let canvas = document.getElementById("canvas");
+  let ctx = canvas.getContext("2d");
+
+  canvas.width = w;
+  canvas.height = h;
+
+  ctx.drawImage(img,0,0,w,h);
+
+  // AUTO DOWNLOAD
+  let link = document.createElement("a");
+  link.href = canvas.toDataURL(format.value);
+  link.download = "converted-image";
+  link.click();
 }
 </script>
 
